@@ -1,6 +1,6 @@
 #include "Tasks.h"
 
-// Inclusión de dependencias para acceder a los métodos de cada módulo
+// Inclusión de módulos
 #include "Sensor.h"
 #include "Actuators.h"
 #include "RTC.h"
@@ -8,7 +8,7 @@
 #include "JSONS.h"
 #include "MQTT.h"
 
-// Referencias a los objetos globales declarados en el archivo principal
+// Referencias a los objetos globales
 extern sensores SEN;
 extern actuadores ACT;
 extern DS1307_RTC MIRTC;
@@ -16,159 +16,182 @@ extern MicroSD MSD;
 extern JSON_Factory JSON_fac;
 extern MQTT mqtt;
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 1.- tarea_pot - Lectura periódica del potenciómetro ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_pot(void) {
-  if ((tiempo_actual - tiempo_anterior_pot) >= TIEMPO_POT) {
-    Serial.print("1.- Ejecutando tarea pot: ");
-    Serial.println(SEN.get_potV());  // Lectura del valor del potenciómetro
-    tiempo_anterior_pot = tiempo_actual;
-  }
+void millis_tasks::inicializar_tareas(void) {
+  pinMode(PIN_BTN, INPUT_PULLUP);
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 2.- tarea_buzz - Activación periódica del buzzer ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_buzz(void) {
-  if ((tiempo_actual - tiempo_anterior_buzz) >= TIEMPO_BUZZ) {
-    Serial.println("2.- Ejecutando tarea buzzer");
-    ACT.play_buzzer();  // Activar buzzer
-    tiempo_anterior_buzz = tiempo_actual;
-  }
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 3.- tarea_buzzwarning - Verificación de alerta con buzzer ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_buzzwarning(void) {
-  if ((tiempo_actual - tiempo_anterior_buzzwarning) >= TIEMPO_WARNING) {
-    Serial.print("3.- Ejecutando tarea buzzer warning: ");
-    Serial.println(SEN.get_potV());
-    tiempo_anterior_buzzwarning = tiempo_actual;
-
-    // Si el potenciómetro supera el umbral, activar buzzer y registrar alerta
-    if (SEN.get_potV() >= 1500) {
-      ACT.play_buzzer();
-      MIRTC.get_time();
-      SEN.fecha_pot = MIRTC.format_date();
-      SEN.hora_pot = MIRTC.format_time();
-      SEN.warning_pot = true;
-    }
-
-    if (SEN.temperatura > 32) {
-      ACT.play_buzzer();
-      MIRTC.get_time();
-      SEN.fecha_temp = MIRTC.format_date();
-      SEN.hora_temp = MIRTC.format_time();
-      SEN.warning_temp = true;
-    }
-
-    if (SEN.humedad > 80.0) {
-      ACT.play_buzzer();
-      MIRTC.get_time();
-      SEN.fecha_hum = MIRTC.format_date();
-      SEN.hora_hum = MIRTC.format_time();
-      SEN.warning_hum = true;
-    }
-  }
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 4.- tarea_lcd - Actualización periódica de la pantalla LCD ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_lcd(void) {
-  if ((tiempo_actual - tiempo_anterior_lcd) >= TIEMPO_LCD) {
-    Serial.println("4.- Ejecutando tarea LCD");
-    ACT.mostrar_datos(
-      SEN.get_potV(), 
-      SEN.temperatura, 
-      SEN.humedad,
-      SEN.warning_pot, 
-      SEN.warning_temp, 
-      SEN.warning_hum
-    );   // Ejemplo de impresión en pantalla
-    tiempo_anterior_lcd = tiempo_actual;
-  }
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 5.- tarea_rtc - Actualización periódica del reloj RTC ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_rtc(void) {
-  if ((tiempo_actual - tiempo_anterior_rtc) >= TIEMPO_RTC) {
-    Serial.println("5.- Ejecutando tarea RTC");
-    MIRTC.get_time();   // Obtener hora actual
-    MIRTC.show_time();  // Mostrar hora en consola
-    tiempo_anterior_rtc = tiempo_actual;
-  }
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 6.- actualizar_tareas - Actualiza el contador de millis() ~~~~~~~~~~~~~~~~~~~~~~~~ */
 void millis_tasks::actualizar_tareas(void) {
-  tiempo_actual = millis();  // Actualizar tiempo actual
+  t_actual = millis();
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 7.- tarea_msd - Guardado periódico en microSD ~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 1.- LECTURA DE SENSORES ~~~~~~~~~~~~~~~~~~~~~~~~ */
+void millis_tasks::tarea_sensores(void) {
+  if ((t_actual - t_ant_sensores) >= TIEMPO_SENSORES) {
+    SEN.leer_ambientales();
+    t_ant_sensores = t_actual;
+  }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 2.- LÓGICA Y JERARQUÍA (EL CEREBRO) ~~~~~~~~~~~~~~~~~~~~~~~~ */
+void millis_tasks::tarea_logica(void) {
+  if ((t_actual - t_ant_logica) >= TIEMPO_LOGICA) {
+    
+    // EVALUACIÓN NOCTURNA CRUZADA
+    // Noche física + Noche lógica
+    if (SEN.warning_noche && (MIRTC.hora >= 18 || MIRTC.hora < 6)) {
+      if (!is_lock) {
+        Serial.println(F(">> [GLOBAL] Noche confirmada por RTC -> Bloqueo Activo"));
+        is_lock = true;
+      }
+    } else if (SEN.lux > 450 && (MIRTC.hora >= 6 && MIRTC.hora < 18)) {
+      // Liberar el bloqueo si es de día
+      is_lock = false;
+      SEN.warning_noche = false; 
+    }
+
+    // JERARQUÍA DE CONTROL
+    
+    // LLUVIA (Suprema y Crítica)
+    if (SEN.warning_lluvia) {
+      if (ACT.ventana_abierta) {
+        Serial.println(F(">> [ALERTA] Lluvia -> CERRAR DE EMERGENCIA"));
+        ACT.cerrar_ventana();
+      }
+    }
+    // BLOQUEO (Noche)
+    else if (is_lock) {
+      if (ACT.ventana_abierta) {
+        ACT.cerrar_ventana();
+      }
+    }
+    // MODO MANUAL (Obedece al Botón)
+    else if (modo_manual) {
+      if (comando_manual_abrir && !ACT.ventana_abierta) {
+        ACT.abrir_ventana();
+      } else if (!comando_manual_abrir && ACT.ventana_abierta) {
+        ACT.cerrar_ventana();
+      }
+    }
+    // MODO AUTOMÁTICO (Clima)
+    else {
+      // Histéresis: Solo abrir si el exterior es notablemente más fresco
+      if (SEN.temp_ext < (SEN.temp_int - UMB_TEMP_MARGIN_ABRIR) && !ACT.ventana_abierta) {
+        Serial.println(F(">> [AUTO] Clima favorable -> ABRIR"));
+        ACT.abrir_ventana();
+      } 
+      // Cerrar si afuera hace más calor que adentro
+      else if (SEN.temp_ext > SEN.temp_int && ACT.ventana_abierta) {
+        Serial.println(F(">> [AUTO] Calor exterior -> CERRAR"));
+        ACT.cerrar_ventana();
+      }
+    }
+
+    // CONTROL DEL VENTILADOR
+    bool requerir_ventilador = false;
+    
+    // Si la humedad o temperatura interior son muy altas
+    if (SEN.hum_int > UMB_HUMEDAD_ALTA || SEN.temp_int > UMB_TEMP_ALTA_INT) {
+      requerir_ventilador = true;
+    }
+    // Si está cerrado y empieza a sofocar
+    if (!ACT.ventana_abierta && SEN.temp_int > UMB_TEMP_SOFOCO) {
+      requerir_ventilador = true;
+    }
+
+    // Aplicar estado físico (PWM a velocidad máxima 255)
+    if (requerir_ventilador && !ACT.ventilador_encendido) {
+      ACT.control_ventilador(true, 255);
+    } else if (!requerir_ventilador && ACT.ventilador_encendido) {
+      ACT.control_ventilador(false);
+    }
+
+    t_ant_logica = t_actual;
+  }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 3.- BOTÓN ~~~~~~~~~~~~~~~~~~~~~~~~ */
+void millis_tasks::tarea_boton(void) {
+  if ((t_actual - t_ant_boton) >= TIEMPO_BOTON) {
+    bool lectura_actual = digitalRead(PIN_BTN);
+    
+    // Detectar flanco de bajada (Pulsación, asumiendo PULLUP)
+    if (lectura_actual == LOW && estado_btn_anterior == HIGH) {
+      // Bloquear acciones manuales si hay lluvia o está bloqueado
+      if (!SEN.warning_lluvia && !is_lock) {
+        modo_manual = true; // Forzamos el control manual temporal
+        comando_manual_abrir = !ACT.ventana_abierta; // Invertir estado actual
+        Serial.println(comando_manual_abrir ? F(">> [BTN] Petición Manual: ABRIR") : F(">> [BTN] Petición Manual: CERRAR"));
+      } else {
+        Serial.println(F(">> [BTN] Acción denegada: Sistema bloqueado o lloviendo"));
+      }
+    }
+    
+    estado_btn_anterior = lectura_actual;
+    t_ant_boton = t_actual;
+  }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 4.- LCD ~~~~~~~~~~~~~~~~~~~~~~~~ */
+void millis_tasks::tarea_lcd(void) {
+  if ((t_actual - t_ant_lcd) >= TIEMPO_LCD) {
+    ACT.mostrar_datos(
+      SEN.temp_int, 
+      SEN.temp_ext, 
+      SEN.hum_int, 
+      SEN.porcentaje_lluvia, 
+      ACT.ventana_abierta, 
+      ACT.ventilador_encendido
+    );
+    t_ant_lcd = t_actual;
+  }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 5.- RTC ~~~~~~~~~~~~~~~~~~~~~~~~ */
+void millis_tasks::tarea_rtc(void) {
+  if ((t_actual - t_ant_rtc) >= TIEMPO_RTC) {
+    MIRTC.get_time();
+    t_ant_rtc = t_actual;
+  }
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 6.- MICRO SD ~~~~~~~~~~~~~~~~~~~~~~~~ */
 void millis_tasks::tarea_msd(void) {
-  if ((tiempo_actual - tiempo_anterior_msd) >= TIEMPO_MSD) {
-    Serial.println("6.- Ejecutando tarea MSD");
+  if ((t_actual - t_ant_msd) >= TIEMPO_MSD) {
     MSD.SaveFile(JSON_fac.make_json(
       MIRTC.format_time(), 
       MIRTC.format_date(), 
-      SEN.get_potV(), 
-      SEN.temperatura, 
-      SEN.humedad, 
-      false,  //warn pot
-      false, //warn temp
-      false //warn hum
+      SEN.lux, 
+      SEN.temp_int, 
+      SEN.hum_int, 
+      SEN.warning_lluvia, 
+      SEN.warning_temp,
+      SEN.warning_hum
     ));
-    tiempo_anterior_msd = tiempo_actual;
+    t_ant_msd = t_actual;
   }
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 8.- tarea_mqtt - Publicación periódica en servidor MQTT ~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 7.- MQTT ~~~~~~~~~~~~~~~~~~~~~~~~ */
 void millis_tasks::tarea_mqtt(void) {
-  if ((tiempo_actual - tiempo_anterior_mqtt) >= TIEMPO_MQTT) {
-    MIRTC.get_time();
-    Serial.println("7.- Ejecutando tarea MQTT");
-
-    //Generar el json para MQTT
+  if ((t_actual - t_ant_mqtt) >= TIEMPO_MQTT) {
     String json_str = JSON_fac.make_json(
       MIRTC.format_time(), 
       MIRTC.format_date(), 
-      SEN.get_potV(), 
-      SEN.temperatura, 
-      SEN.humedad, 
-      SEN.warning_pot, 
+      SEN.lux, 
+      SEN.temp_int, 
+      SEN.hum_int, 
+      SEN.warning_lluvia, 
       SEN.warning_temp,
       SEN.warning_hum
     );
 
-    // Publicamos y guardamos siempre
     mqtt.publish_MQTT(json_str);
-    MSD.SaveFile(json_str);
 
-    // Limpiamos las banderas de las alertas ya transmitidas
-    if (SEN.warning_pot) {
-      SEN.warning_pot = false;
-      SEN.fecha_pot = "";
-      SEN.hora_pot = "";
-    }
-    
-    if (SEN.warning_temp) {
-      SEN.warning_temp = false;
-      SEN.fecha_temp = "";
-      SEN.hora_temp = "";
-    }
+    // Limpiar banderas de alerta una vez transmitidas
+    if (SEN.warning_temp) SEN.warning_temp = false;
+    if (SEN.warning_hum) SEN.warning_hum = false;
+    if (SEN.warning_lluvia && SEN.porcentaje_lluvia < UMB_LLUVIA_CRITICA) SEN.warning_lluvia = false; 
 
-    if (SEN.warning_hum) {
-      SEN.warning_hum = false;
-      SEN.fecha_hum = "";
-      SEN.hora_hum = "";
-    }
-
-    tiempo_anterior_mqtt = tiempo_actual;
-  }
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 9.- tarea_amb - Lectura periódica de sensores ambientales ~~~~~~~~~~~~~~~~~~~~~~~~ */
-void millis_tasks::tarea_amb(void) {
-  if ((tiempo_actual - tiempo_anterior_amb) >= TIEMPO_AMB) {
-    SEN.leer_ambientales();
-    Serial.print("9.- Ejecutando tarea Sensores Ambientales: ");
-    Serial.println(SEN.temperatura);
-    
-    tiempo_anterior_amb = tiempo_actual;
+    t_ant_mqtt = t_actual;
   }
 }

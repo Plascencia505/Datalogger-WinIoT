@@ -1,6 +1,6 @@
 #include "MicroSD.h"
 
-// Definición real del objeto global File
+// Definición del objeto global File
 File MicroSD_File;
 
 //  Inicializa la tarjeta MicroSD en el pin definido.

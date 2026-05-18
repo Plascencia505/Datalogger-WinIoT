@@ -1,18 +1,18 @@
 #ifndef JSONS_H
 #define JSONS_H
 
-#include <ArduinoJson.h>  // Asegúrate de incluir la librería
+#include <ArduinoJson.h>
 
 class JSON_Factory {
 public:
-  // Método que construye un JSON con los parámetros recibidos y datos globales
+  // Método actualizado con los parámetros de la ventana inteligente
   String make_json(
     String hora, 
     String fecha, 
-    int pot, 
+    uint16_t lux, 
     float temp, 
     float hum, 
-    bool warn_pot, 
+    bool warn_lluvia, 
     bool warn_temp,
     bool warn_hum
   );

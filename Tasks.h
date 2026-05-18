@@ -1,79 +1,56 @@
-#include "MQTT.h"
+#ifndef Tasks_h
+#define Tasks_h
 
-// Definición real de los objetos globales
-WiFiClient ESP32_WIFI;
-PubSubClient client(ESP32_WIFI);
+#include <Arduino.h>
 
-void MQTT::set_MQTT_server(void) {
-  client.setServer(MQTT_SERVER, MQTT_PORT);  // Configuración del Broker MQTT
-}
+// PINES EXTRAS
+#define PIN_BTN 14 // Botón de emergencia
 
-void MQTT::set_MQTT_callback(void) {
-  client.setCallback(this->callback);  // Asignar función callback
-}
+// CONSTANTES LÓGICAS
+#define UMB_TEMP_MARGIN_ABRIR 3.0 // Histéresis de temperatura (°C)
+#define UMB_TEMP_SOFOCO       25.0 // Temperatura para encender ventilador si está cerrado
 
-void MQTT::subscribe_MQTT(void) {
-  client.subscribe(RXTOPIC);  // Suscripción al topic principal
-  //client.subscribe ( RXTOPIC1 );               // Ejemplo de suscripción adicional
-}
+// TIEMPOS DE TAREAS (ms)
+#define TIEMPO_SENSORES 2000  // Lectura ambiental cada 2s
+#define TIEMPO_LOGICA   1000  // Evaluación de jerarquía cada 1s
+#define TIEMPO_BOTON    50    // Polling del botón (Antirrebote)
+#define TIEMPO_LCD      5000  // Actualización de pantalla cada 5s
+#define TIEMPO_MSD      10000 // Guardado en SD cada 10s
+#define TIEMPO_MQTT     10000 // Publicación MQTT cada 10s
+#define TIEMPO_RTC      1000  // Actualización de reloj cada 1s
 
-void MQTT::publish_MQTT(String msg) {
-  Serial.println(F("Publicando información"));
-  client.publish(TXTOPIC, msg.c_str());  // Publicar mensaje en el topic
-}
+class millis_tasks {
+public:
+  // Control de tiempo exacto con uint32_t para coincidir con millis()
+  uint32_t t_ant_sensores = 0,
+           t_ant_logica   = 0,
+           t_ant_boton    = 0,
+           t_ant_lcd      = 0,
+           t_ant_msd      = 0,
+           t_ant_mqtt     = 0,
+           t_ant_rtc      = 0,
+           t_actual       = 0;
 
-void MQTT::reconnect_MQTT(void) {
-  if (!client.connected()) {
-    // Variable estática para llevar la cuenta del tiempo sin detener el ESP32
-    static uint32_t ultimo_intento = 0; 
-    
-    // Solo intenta reconectar si han pasado 5000 ms desde el último intento
-    if (millis() - ultimo_intento > 5000) {
-      ultimo_intento = millis();
-      Serial.print(F("Conectando nuevamente al servidor... "));
-      
-      if (client.connect("Client_test")) {  // Intento de conexión
-        Serial.println(F("Cliente conectado"));
-        subscribe_MQTT();  // Suscribirse nuevamente
-      } else {             // Si falla la conexión
-        Serial.print(F("Falló al conectarse, tipo de error: "));
-        Serial.print(client.state());  // Mostrar estado del error
-        Serial.println(F(" - Intentando nuevamente en 5 segundos"));
-      }
-    }
-  } else {
-    client.loop();  // Mantener la conexión activa si está conectado
-  }
-}
-
-void MQTT::setup_WiFi(void) {
-  delay(10);
-  Serial.println(F("Configurando WiFi: "));
-  WiFi.begin(HOTSPOT_WIFI, HOTSPOT_PWD);  // Iniciar conexión WiFi
-
-  uint8_t intentos = 0;
-  // Límite de intentos para evitar que el ESP32 se congele sin red
-  while (WiFi.status() != WL_CONNECTED && intentos < 20) {  
-    delay(500);
-    Serial.print(F("."));  // Mostrar progreso
-    intentos++;
-  }
+  // Variables de Estado Global del Sistema
+  bool modo_manual = false;
+  bool is_lock = false;
+  bool comando_manual_abrir = false;
   
-  if(WiFi.status() == WL_CONNECTED){
-    Serial.println(F("\nWiFi conectado con éxito"));
-  } else {
-    Serial.println(F("\nAdvertencia: No se pudo conectar al WiFi. Iniciando modo fuera de línea."));
-  }
-}
+  // Variables auxiliares para el botón
+  bool estado_btn_anterior = HIGH;
 
-void MQTT::callback(char* topic, byte* message, unsigned int length) {
-  Serial.print(F("Ha llegado un mensaje de: "));
-  Serial.println(topic);  // Mostrar el topic recibido
+public:
+  void inicializar_tareas(void); // Configura pines locales de tareas
+  void actualizar_tareas(void);  // Mantiene el reloj interno
 
-  String messageTemp;
-  for (unsigned int i = 0; i < length; i++) {
-    messageTemp += (char)message[i];  // Convertir bytes a String
-  }
+  // Métodos de tareas concurrentes
+  void tarea_sensores(void);
+  void tarea_logica(void);
+  void tarea_boton(void);
+  void tarea_lcd(void);
+  void tarea_rtc(void);
+  void tarea_msd(void);
+  void tarea_mqtt(void);
+};
 
-  Serial.println(messageTemp);  // Mostrar mensaje recibido
-}
+#endif

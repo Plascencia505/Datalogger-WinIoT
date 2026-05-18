@@ -3,7 +3,7 @@
 
 extern DS1307_RTC MIRTC;
 
-// Definición real del objeto global
+// Definición del objeto global
 sensores SEN;
 
 sensores::sensores() : dht(PIN_DHT_INT, DHTTYPE), oneWire(PIN_DS18_EXT), ds18b20(&oneWire) {}

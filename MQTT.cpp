@@ -1,6 +1,6 @@
 #include "MQTT.h"
 
-// Definición real de los objetos globales
+// Definición de los objetos globales
 WiFiClient ESP32_WIFI;
 PubSubClient client(ESP32_WIFI);
 

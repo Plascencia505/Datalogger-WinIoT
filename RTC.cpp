@@ -1,6 +1,6 @@
 #include "RTC.h"
 
-// Definición real del objeto global
+// Definición del objeto global
 RTC_DS1307 rtc;
 
 //  Inicializa el módulo RTC DS1307.
