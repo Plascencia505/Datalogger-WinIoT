@@ -1,4 +1,4 @@
-#include "Sensor.h"
+#include "Sensors.h"
 #include "RTC.h" // Inclusión para obtener la marca de tiempo de las alertas
 
 extern DS1307_RTC MIRTC;

@@ -2,6 +2,7 @@
 
 // Definición del objeto global File
 File MicroSD_File;
+MicroSD MSD;
 
 //  Inicializa la tarjeta MicroSD en el pin definido.
 //  Si falla la inicialización, muestra un mensaje de error y reintenta hasta 5 veces.

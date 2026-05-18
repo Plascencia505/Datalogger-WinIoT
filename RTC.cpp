@@ -2,6 +2,7 @@
 
 // Definición del objeto global
 RTC_DS1307 rtc;
+DS1307_RTC MIRTC;
 
 //  Inicializa el módulo RTC DS1307.
 //  Si no se reconoce el dispositivo, muestra un error y reintenta.

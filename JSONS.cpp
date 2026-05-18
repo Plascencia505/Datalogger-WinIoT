@@ -2,6 +2,7 @@
 #include "Sensors.h"  // Necesario para acceder a las fechas de las alertas
 
 extern sensores SEN; // Referencia al objeto global
+JSON_Factory JSON_fac;
 
 String JSON_Factory::make_json(
   String hora, 

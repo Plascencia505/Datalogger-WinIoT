@@ -3,6 +3,7 @@
 // Definición de los objetos globales
 WiFiClient ESP32_WIFI;
 PubSubClient client(ESP32_WIFI);
+MQTT mqtt;
 
 void MQTT::set_MQTT_server(void) {
   client.setServer(MQTT_SERVER, MQTT_PORT);  // Configuración del Broker MQTT
