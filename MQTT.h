@@ -27,4 +27,6 @@ public:
   static void callback(char*, byte*, unsigned int);  // Función callback para manejar mensajes recibidos
 };
 
+extern MQTT mqtt;
+
 #endif

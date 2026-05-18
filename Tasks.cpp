@@ -1,7 +1,7 @@
 #include "Tasks.h"
 
 // Inclusión de módulos
-#include "Sensor.h"
+#include "Sensors.h"
 #include "Actuators.h"
 #include "RTC.h"
 #include "MicroSD.h"

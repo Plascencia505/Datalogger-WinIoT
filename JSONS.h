@@ -18,4 +18,6 @@ public:
   );
 };
 
+extern JSON_Factory JSON_fac;
+
 #endif

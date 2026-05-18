@@ -1,5 +1,5 @@
 #include "JSONS.h"
-#include "Sensor.h"  // Necesario para acceder a las fechas de las alertas
+#include "Sensors.h"  // Necesario para acceder a las fechas de las alertas
 
 extern sensores SEN; // Referencia al objeto global
 

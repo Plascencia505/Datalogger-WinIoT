@@ -27,4 +27,6 @@ public:
   void show_time(void);      // Muestra fecha y hora en consola serial
 };
 
+extern DS1307_RTC MIRTC;
+
 #endif

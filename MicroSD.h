@@ -27,4 +27,6 @@ public:
   void ReadFile(void);      // Lee datos del archivo
 };
 
+extern MicroSD MSD;
+
 #endif

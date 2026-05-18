@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <DHT.h>
-#include <OneWire.h>
 #include <DallasTemperature.h>
 #include <BH1750.h> // Librería de Christopher Laws
 
