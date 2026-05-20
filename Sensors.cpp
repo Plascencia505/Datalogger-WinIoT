@@ -28,7 +28,7 @@ void sensores::leer_ambientales(void) {
   // Lectura del DHT22
   float t_int = dht.readTemperature();
   float h_int = dht.readHumidity();
-  // Validar que la lectura no sea NaN (Not a Number)
+  // Validar las lecturas
   if (!isnan(t_int)) temp_int = t_int;
   if (!isnan(h_int)) hum_int = h_int;
 

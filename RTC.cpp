@@ -11,20 +11,19 @@ void DS1307_RTC::RTC_init(void) {
   uint8_t intentos = 0;
 
   while (!rtc.begin() && intentos < 5) {
-    Serial.println(F("Hay un error de reconocimiento del RTC, revisa conexiones y alimentación"));
-    Serial.flush();  // Espera a que se transmita la información serial
-    delay(1000);     // Reducido a 1s para no prolongar el arranque innecesariamente
+    Serial.println(F("Error al inicializar RTC"));
+    Serial.flush();
+    delay(1000);
     intentos++;
   }
 
   if (intentos >= 5) {
-    Serial.println(F("Error crítico: Límite de intentos alcanzado. Continuando sin RTC."));
-    return;  // Salir para evitar evaluar isrunning() en un módulo desconectado
+    Serial.println(F("Límite de intentos alcanzado. Continuando sin RTC."));
+    return;
   }
 
   if (!rtc.isrunning()) {  // Si el reloj no está ejecutándose
     Serial.println(F("El reloj se está configurando con la fecha y hora de la computadora"));
-    // __DATE__ y __TIME__ son macros que retornan la fecha y hora de la computadora
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // Ajuste automático
   }
 }

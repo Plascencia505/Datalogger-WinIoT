@@ -23,7 +23,7 @@ String JSON_Factory::make_json(
   doc["temperatura_int"] = temp;
   doc["humedad_int"] = hum;
 
-  // Agregamos la lectura cruda de la lluvia por si quieres graficarla
+  // Agregar lectura cruda de la lluvia
   doc["lluvia_pct"] = SEN.porcentaje_lluvia;
 
   // Si existe alguna advertencia, crear el objeto anidado
@@ -52,10 +52,10 @@ String JSON_Factory::make_json(
     }
   }
 
-  // Serializar el documento JSON y guardarlo en la variable String
+  // Serializar el documento JSON
   serializeJson(doc, json_str);
 
-  // Imprimir por el monitor serie para depuración (opcional, puedes comentarlo en producción)
+  // Imprimir payload para corroborar funcionamiento
   Serial.print(F("Payload para Mosquitto/SD: "));
   Serial.println(json_str);
 

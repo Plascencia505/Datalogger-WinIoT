@@ -5,7 +5,6 @@
 
 class JSON_Factory {
 public:
-  // Método actualizado con los parámetros de la ventana inteligente
   String make_json(
     String hora,
     String fecha,

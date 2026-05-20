@@ -14,7 +14,6 @@ extern PubSubClient client;
 #define MQTT_PORT 1883                    // Puerto del Broker MQTT
 #define TXTOPIC "20206896/ucol/TX_6B"     // Topic de publicación
 #define RXTOPIC "20206896/ucol/RX_6B"     // Topic de suscripción
-//#define RXTOPIC1    "/E"                // Ejemplo de otro topic de suscripción
 
 class MQTT {
 public:

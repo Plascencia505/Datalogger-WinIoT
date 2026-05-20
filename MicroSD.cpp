@@ -16,9 +16,9 @@ void MicroSD::MicroSD_init(void) {
   }
 
   if (intentos < 5) {
-    Serial.println(F("La librería MicroSD ha inicializado con éxito"));
+    Serial.println(F("Módulo MicroSD inicializado"));
   } else {
-    Serial.println(F("Error crítico: Límite de intentos alcanzado. Continuando sin MicroSD."));
+    Serial.println(F(" Límite de intentos alcanzado. Continuando sin MicroSD."));
   }
 }
 

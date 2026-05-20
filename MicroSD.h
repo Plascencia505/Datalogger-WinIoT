@@ -7,7 +7,8 @@
 // Pin de control de la MicroSD (CS - Chip Select)
 #define MICROSD_PIN 5
 
-// Objeto global declarado como externo para evitar redefiniciones en múltiples inclusiones
+// Objeto global declarado como externo para evitar redefiniciones
+// Solo existe uno en toda la memoria
 extern File MicroSD_File;
 
 class MicroSD {
@@ -17,8 +18,6 @@ public:
   /* Contador auxiliar (puede usarse para llevar registro de operaciones). */
 
   String filename = "/TestDatalogger.txt";
-  /* Nombre del archivo en la raíz de la tarjeta. 
-       El prefijo "/" indica que está en el directorio principal. */
 
   // MÉTODOS
 public:

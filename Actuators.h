@@ -8,8 +8,8 @@
 #include <ESP32Servo.h>
 
 // PINES
-#define PIN_SERVO_DER 18
-#define PIN_SERVO_IZQ 19
+#define PIN_SERVO_DER 14
+#define PIN_SERVO_IZQ 25
 
 // Puente H TB6612FNG para el motor DC
 #define PIN_FAN_PWM 12

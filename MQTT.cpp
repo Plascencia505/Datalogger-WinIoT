@@ -25,7 +25,7 @@ void MQTT::publish_MQTT(String msg) {
 
 void MQTT::reconnect_MQTT(void) {
   if (!client.connected()) {
-    // Variable estática para llevar la cuenta del tiempo sin detener el ESP32
+    // Tiempo del último intento para no bloquear al ESP32
     static uint32_t ultimo_intento = 0;
 
     // Solo intenta reconectar si han pasado 5000 ms desde el último intento
@@ -53,7 +53,7 @@ void MQTT::setup_WiFi(void) {
   WiFi.begin(HOTSPOT_WIFI, HOTSPOT_PWD);  // Iniciar conexión WiFi
 
   uint8_t intentos = 0;
-  // Límite de intentos para evitar que el ESP32 se congele sin red
+  // Límite de intentos
   while (WiFi.status() != WL_CONNECTED && intentos < 20) {
     delay(500);
     Serial.print(F("."));  // Mostrar progreso
@@ -63,7 +63,7 @@ void MQTT::setup_WiFi(void) {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(F("\nWiFi conectado con éxito"));
   } else {
-    Serial.println(F("\nAdvertencia: No se pudo conectar al WiFi. Iniciando modo fuera de línea."));
+    Serial.println(F("\nAdvertencia: No se pudo conectar al WiFi."));
   }
 }
 

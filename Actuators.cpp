@@ -1,6 +1,6 @@
 #include "Actuators.h"
 
-// Definición real de los objetos globales
+// Definición de los objetos globales
 actuadores ACT;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -13,7 +13,7 @@ void actuadores::config(void) {
   // Asegurar que el ventilador inicie apagado
   control_ventilador(false);
 
-  // Configuración de los Servos (Se ajustan los timers para el ESP32)
+  // Configuración de los Servos
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   servoDer.setPeriodHertz(50);
@@ -21,13 +21,13 @@ void actuadores::config(void) {
 
   // Inicialización de Pantalla OLED
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("Fallo al inicializar la pantalla OLED SSD1306"));
+    Serial.println(F("Fallo al inicializar la pantalla OLED"));
   } else {
     display.clearDisplay();
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(10, 25);
-    display.println(F("Sistema Inteligente"));
+    display.println(F("Datalogger - WinIoT"));
     display.setCursor(10, 35);
     display.println(F("Iniciando..."));
     display.display();
@@ -75,7 +75,7 @@ void actuadores::relajar_servos(void) {
   servoIzq.detach();
 }
 
-void actuadores::control_ventilador(bool encender, int velocidad_pwm) {
+void actuadores::control_ventilador(bool encender, int velocidad_pwm = 0) {
   if (encender) {
     // Configurar dirección de giro (IN1=HIGH, IN2=LOW)
     digitalWrite(PIN_FAN_IN1, HIGH);
@@ -87,7 +87,7 @@ void actuadores::control_ventilador(bool encender, int velocidad_pwm) {
     // Freno del motor (IN1=LOW, IN2=LOW) y apagar PWM
     digitalWrite(PIN_FAN_IN1, LOW);
     digitalWrite(PIN_FAN_IN2, LOW);
-    analogWrite(PIN_FAN_PWM, 0);
+    analogWrite(PIN_FAN_PWM, velocidad_pwm);
     ventilador_encendido = false;
   }
 }
@@ -131,7 +131,7 @@ void actuadores::mostrar_datos(
   display.print(F("Ventana: "));
   display.print(w_abierta ? F("ABIERTA") : F("CERRADA"));
 
-  // Mostrar un pequeño indicador para el ventilador en la esquina inferior derecha
+  // Indicador del ventilador
   if (fan_on) {
     display.setCursor(100, 51);
     display.print(F("[FAN]"));
