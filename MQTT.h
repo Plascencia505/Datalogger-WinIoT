@@ -1,8 +1,8 @@
 #ifndef MQTT_h
 #define MQTT_h
 
-#include <WiFi.h>              // Librería para el uso del cliente WiFi
-#include "PubSubClient.h"      // Librería para el uso del protocolo MQTT
+#include <WiFi.h>          // Librería para el uso del cliente WiFi
+#include "PubSubClient.h"  // Librería para el uso del protocolo MQTT
 
 // Objetos globales declarados como externos
 extern WiFiClient ESP32_WIFI;

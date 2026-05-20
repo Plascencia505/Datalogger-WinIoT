@@ -9,7 +9,7 @@ void actuadores::config(void) {
   pinMode(PIN_FAN_PWM, OUTPUT);
   pinMode(PIN_FAN_IN1, OUTPUT);
   pinMode(PIN_FAN_IN2, OUTPUT);
-  
+
   // Asegurar que el ventilador inicie apagado
   control_ventilador(false);
 
@@ -46,7 +46,7 @@ void actuadores::abrir_ventana(void) {
 
     // Esperar a que los servos alcancen su posición mecánicamente
     delay(1500);
-    
+
     relajar_servos();
     ventana_abierta = true;
   }
@@ -63,7 +63,7 @@ void actuadores::cerrar_ventana(void) {
     servoIzq.write(ANGULO_CERRADO_IZQ);
 
     delay(1500);
-    
+
     relajar_servos();
     ventana_abierta = false;
   }
@@ -93,13 +93,12 @@ void actuadores::control_ventilador(bool encender, int velocidad_pwm) {
 }
 
 void actuadores::mostrar_datos(
-  float temp_in, 
-  float temp_out, 
-  float hum, 
-  uint8_t lluvia, 
-  bool w_abierta, 
-  bool fan_on
-) {
+  float temp_in,
+  float temp_out,
+  float hum,
+  uint8_t lluvia,
+  bool w_abierta,
+  bool fan_on) {
   display.clearDisplay();
 
   // Encabezado
@@ -110,18 +109,26 @@ void actuadores::mostrar_datos(
 
   // Bloque de Temperaturas y Humedad
   display.setCursor(0, 15);
-  display.print(F("Tin:")); display.print(temp_in, 1); display.print(F("C "));
-  display.print(F("H:")); display.print(hum, 0); display.println(F("%"));
+  display.print(F("Tin:"));
+  display.print(temp_in, 1);
+  display.print(F("C "));
+  display.print(F("H:"));
+  display.print(hum, 0);
+  display.println(F("%"));
 
   display.setCursor(0, 27);
-  display.print(F("Tex:")); display.print(temp_out, 1); display.print(F("C "));
-  
+  display.print(F("Tex:"));
+  display.print(temp_out, 1);
+  display.print(F("C "));
+
   display.setCursor(0, 39);
-  display.print(F("Lluvia: ")); display.print(lluvia); display.println(F("%"));
+  display.print(F("Lluvia: "));
+  display.print(lluvia);
+  display.println(F("%"));
 
   // Indicadores de Estado Físico
   display.setCursor(0, 51);
-  display.print(F("Ventana: ")); 
+  display.print(F("Ventana: "));
   display.print(w_abierta ? F("ABIERTA") : F("CERRADA"));
 
   // Mostrar un pequeño indicador para el ventilador en la esquina inferior derecha

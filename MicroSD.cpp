@@ -8,13 +8,13 @@ MicroSD MSD;
 //  Si falla la inicialización, muestra un mensaje de error y reintenta hasta 5 veces.
 void MicroSD::MicroSD_init(void) {
   uint8_t intentos = 0;
-  
+
   while (!SD.begin(MICROSD_PIN) && intentos < 5) {
     Serial.println(F("Falló la inicialización del módulo MicroSD"));
     delay(1000);  // Espera 1 segundo antes de reintentar
     intentos++;
   }
-  
+
   if (intentos < 5) {
     Serial.println(F("La librería MicroSD ha inicializado con éxito"));
   } else {

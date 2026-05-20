@@ -19,7 +19,7 @@ void DS1307_RTC::RTC_init(void) {
 
   if (intentos >= 5) {
     Serial.println(F("Error crítico: Límite de intentos alcanzado. Continuando sin RTC."));
-    return; // Salir para evitar evaluar isrunning() en un módulo desconectado
+    return;  // Salir para evitar evaluar isrunning() en un módulo desconectado
   }
 
   if (!rtc.isrunning()) {  // Si el reloj no está ejecutándose

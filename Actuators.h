@@ -13,19 +13,20 @@
 
 // Puente H TB6612FNG para el motor DC
 #define PIN_FAN_PWM 12
-#define PIN_FAN_IN1 27 // Pin de dirección 1
-#define PIN_FAN_IN2 26 // Pin de dirección 2
+#define PIN_FAN_IN1 27  // Pin de dirección 1
+#define PIN_FAN_IN2 26  // Pin de dirección 2
 
 // Pantalla OLED
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
 
-// CONFIGURACIÓN DE SERVOS (Modo Espejo)
-#define ANGULO_ABIERTO_DER 180
-#define ANGULO_ABIERTO_IZQ 0
-#define ANGULO_CERRADO_DER 0
-#define ANGULO_CERRADO_IZQ 180
+// CONFIGURACIÓN DE SERVOS 
+// Actuan como espejo, por eso ángulos opuestos
+#define ANGULO_ABIERTO_DER 165
+#define ANGULO_ABIERTO_IZQ 15
+#define ANGULO_CERRADO_DER 90
+#define ANGULO_CERRADO_IZQ 90
 
 class actuadores {
 private:
@@ -39,7 +40,7 @@ public:
 
   // Métodos principales
   void config(void);
-  
+
   // Control de Ventana
   void abrir_ventana(void);
   void cerrar_ventana(void);
@@ -50,13 +51,12 @@ public:
 
   // Visualización
   void mostrar_datos(
-    float temp_in, 
-    float temp_out, 
-    float hum, 
-    uint8_t lluvia, 
-    bool w_abierta, 
-    bool fan_on
-  );
+    float temp_in,
+    float temp_out,
+    float hum,
+    uint8_t lluvia,
+    bool w_abierta,
+    bool fan_on);
 };
 
 // Declaración de objetos globales

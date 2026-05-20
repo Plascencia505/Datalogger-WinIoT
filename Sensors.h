@@ -6,19 +6,19 @@
 #include <DHT.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <BH1750.h> 
+#include <BH1750.h>
 
 // PINES
-#define PIN_DHT_INT  16
-#define DHTTYPE      DHT22
+#define PIN_DHT_INT 16
+#define DHTTYPE DHT22
 #define PIN_DS18_EXT 17
-#define PIN_LLUVIA   33
+#define PIN_LLUVIA 33
 
 // UMBRALES ESCALABLES
-#define UMB_HUMEDAD_ALTA   70.0
-#define UMB_TEMP_ALTA_INT  28.0
-#define UMB_LUX_NOCHE      400
-#define UMB_LLUVIA_CRITICA 70   
+#define UMB_HUMEDAD_ALTA 70.0
+#define UMB_TEMP_ALTA_INT 28.0
+#define UMB_LUX_NOCHE 400
+#define UMB_LLUVIA_CRITICA 70
 
 class sensores {
 private:
@@ -52,9 +52,9 @@ public:
   uint16_t lux = 0;
   uint8_t porcentaje_lluvia = 0;
 
-  void config(void);           
-  void leer_ambientales(void); 
-  void evaluar_alertas(void);  
+  void config(void);
+  void leer_ambientales(void);
+  void evaluar_alertas(void);
 };
 
 // Declaración del objeto global para ser usado en otros módulos

@@ -1,21 +1,22 @@
 #include "Sensors.h"
-#include "RTC.h" // Inclusión para obtener la marca de tiempo de las alertas
+#include "RTC.h"  // Inclusión para obtener la marca de tiempo de las alertas
 
 extern DS1307_RTC MIRTC;
 
 // Definición del objeto global
 sensores SEN;
 
-sensores::sensores() : dht(PIN_DHT_INT, DHTTYPE), oneWire(PIN_DS18_EXT), ds18b20(&oneWire) {}
+sensores::sensores()
+  : dht(PIN_DHT_INT, DHTTYPE), oneWire(PIN_DS18_EXT), ds18b20(&oneWire) {}
 
 void sensores::config(void) {
   pinMode(PIN_LLUVIA, INPUT);
-  
+
   dht.begin();
   ds18b20.begin();
-  
+
   Wire.begin();
-  
+
   if (!luxometro.begin()) {
     Serial.println(F("Error inicializando sensor de luz BH1750"));
   } else {
@@ -42,7 +43,7 @@ void sensores::leer_ambientales(void) {
 
   // Lectura y mapeo del YL-83
   int valor_crudo = analogRead(PIN_LLUVIA);
-  valor_crudo = constrain(valor_crudo, 0, 4095); // Evitar valores fuera de rango
+  valor_crudo = constrain(valor_crudo, 0, 4095);  // Evitar valores fuera de rango
   // Invertir y mapear a un porcentaje de 0% a 100%
   porcentaje_lluvia = map(valor_crudo, 4095, 0, 0, 100);
 
