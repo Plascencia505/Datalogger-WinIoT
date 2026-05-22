@@ -75,7 +75,7 @@ void actuadores::relajar_servos(void) {
   servoIzq.detach();
 }
 
-void actuadores::control_ventilador(bool encender, int velocidad_pwm = 0) {
+void actuadores::control_ventilador(bool encender, int velocidad_pwm) {
   if (encender) {
     // Configurar dirección de giro (IN1=HIGH, IN2=LOW)
     digitalWrite(PIN_FAN_IN1, HIGH);
@@ -87,7 +87,7 @@ void actuadores::control_ventilador(bool encender, int velocidad_pwm = 0) {
     // Freno del motor (IN1=LOW, IN2=LOW) y apagar PWM
     digitalWrite(PIN_FAN_IN1, LOW);
     digitalWrite(PIN_FAN_IN2, LOW);
-    analogWrite(PIN_FAN_PWM, velocidad_pwm);
+    analogWrite(PIN_FAN_PWM, 0);
     ventilador_encendido = false;
   }
 }
