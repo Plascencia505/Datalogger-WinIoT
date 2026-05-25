@@ -10,7 +10,7 @@ extern PubSubClient client;
 
 #define HOTSPOT_WIFI "MotoEdge30"         // Nombre del punto de acceso WiFi
 #define HOTSPOT_PWD "internetPlease"      // Contraseña de la red WiFi
-#define MQTT_SERVER "test.mosquitto.org"  // Dirección del Broker MQTT
+#define MQTT_SERVER "broker.hivemq.com"  // Dirección del Broker MQTT
 #define MQTT_PORT 1883                    // Puerto del Broker MQTT
 #define TXTOPIC "20206896/ucol/TX_6B"     // Topic de publicación
 #define RXTOPIC "20206896/ucol/RX_6B"     // Topic de suscripción

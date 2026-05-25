@@ -11,8 +11,10 @@ String JSON_Factory::make_json(
   float temp,
   float hum,
   bool warn_lluvia,
-  bool warn_temp,
-  bool warn_hum) {
+  bool warn_diff,
+  bool warn_hum,
+  bool warn_emergencia
+) {
   JsonDocument doc;
   String json_str = "";
 
@@ -27,7 +29,7 @@ String JSON_Factory::make_json(
   doc["lluvia_pct"] = SEN.porcentaje_lluvia;
 
   // Si existe alguna advertencia, crear el objeto anidado
-  if (warn_lluvia || warn_temp || warn_hum) {
+  if (warn_lluvia || warn_diff || warn_hum || warn_emergencia) {
     JsonObject advertencia = doc["advertencias"].to<JsonObject>();
 
     // Anidar advertencia de lluvia
@@ -38,10 +40,10 @@ String JSON_Factory::make_json(
     }
 
     // Anidar advertencia de la temperatura
-    if (warn_temp) {
-      JsonObject adv_temp = advertencia["temperatura"].to<JsonObject>();
-      adv_temp["fecha"] = SEN.fecha_temp;
-      adv_temp["hora"] = SEN.hora_temp;
+    if (warn_diff) {
+      JsonObject adv_diff = advertencia["clima_favorable"].to<JsonObject>();
+      adv_diff["fecha"] = SEN.fecha_diff; 
+      adv_diff["hora"] = SEN.hora_diff;   
     }
 
     // Anidar advertencia de la humedad
@@ -49,6 +51,13 @@ String JSON_Factory::make_json(
       JsonObject adv_hum = advertencia["humedad"].to<JsonObject>();
       adv_hum["fecha"] = SEN.fecha_hum;
       adv_hum["hora"] = SEN.hora_hum;
+    }
+
+    // Anidar advertencia de emergencia
+    if (warn_emergencia) {
+      JsonObject adv_emg = advertencia["emergencia"].to<JsonObject>();
+      adv_emg["fecha"] = SEN.fecha_emergencia; 
+      adv_emg["hora"] = SEN.hora_emergencia;  
     }
   }
 

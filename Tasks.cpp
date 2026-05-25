@@ -52,7 +52,7 @@ void millis_tasks::tarea_logica(void) {
     if (SEN.lux > 450 && (MIRTC.hora >= 6 && MIRTC.hora < 18)) es_noche = false;
 
     // árbol lógico de control
-    if (!emergencia) {
+    if (!SEN.warning_emergencia) {
       if (!is_raining) {
         if (!es_noche) {
           
@@ -107,13 +107,21 @@ void millis_tasks::tarea_logica(void) {
 void millis_tasks::tarea_boton(void) {
   if ((t_actual - t_ant_boton) >= TIEMPO_BOTON) {
     bool lectura_actual = digitalRead(PIN_BTN);
-    
-    // Detectar pulsación
+
+    // Detectar pulsación (Flanco de bajada)
     if (lectura_actual == LOW && estado_btn_anterior == HIGH) {
-      emergencia = !emergencia; // Alternar estado
-      Serial.println(emergencia ? F(">> [BTN] EMERGENCIA ACTIVADA") : F(">> [BTN] EMERGENCIA DESACTIVADA"));
+      SEN.warning_emergencia = !SEN.warning_emergencia; // Toggle
+
+      if (SEN.warning_emergencia) {
+        MIRTC.get_time();
+        SEN.fecha_emergencia = MIRTC.format_date();
+        SEN.hora_emergencia = MIRTC.format_time();
+        Serial.println(F(">> [BTN] EMERGENCIA ACTIVADA (Alerta generada)"));
+      } else {
+        Serial.println(F(">> [BTN] EMERGENCIA DESACTIVADA (Regreso a Auto)"));
+      }
     }
-    
+
     estado_btn_anterior = lectura_actual;
     t_ant_boton = t_actual;
   }
@@ -151,8 +159,9 @@ void millis_tasks::tarea_msd(void) {
       SEN.temp_int,
       SEN.hum_int,
       SEN.warning_lluvia,
-      SEN.warning_temp,
-      SEN.warning_hum));
+      SEN.warning_diff,
+      SEN.warning_hum,
+      SEN.warning_emergencia));
     t_ant_msd = t_actual;
   }
 }
@@ -167,14 +176,16 @@ void millis_tasks::tarea_mqtt(void) {
       SEN.temp_int,
       SEN.hum_int,
       SEN.warning_lluvia,
-      SEN.warning_temp,
-      SEN.warning_hum);
+      SEN.warning_diff,
+      SEN.warning_hum,
+      SEN.warning_emergencia);
 
     mqtt.publish_MQTT(json_str);
 
     // Limpiar banderas de alerta una vez transmitidas
-    if (SEN.warning_temp) SEN.warning_temp = false;
+    if (SEN.warning_diff) SEN.warning_diff = false;
     if (SEN.warning_hum) SEN.warning_hum = false;
+    
     if (SEN.warning_lluvia && SEN.porcentaje_lluvia < UMB_LLUVIA_CRITICA) SEN.warning_lluvia = false;
 
     t_ant_mqtt = t_actual;

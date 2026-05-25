@@ -52,11 +52,11 @@ void sensores::leer_ambientales(void) {
 
 void sensores::evaluar_alertas(void) {
   // Alerta de Temperatura
-  if (temp_int > UMB_TEMP_ALTA_INT && !warning_temp) {
-    warning_temp = true;
+  if (temp_ext <= (temp_int - UMB_TEMP_MARGIN_ABRIR) && !warning_diff) {
+    warning_diff = true;
     MIRTC.get_time();
-    fecha_temp = MIRTC.format_date();
-    hora_temp = MIRTC.format_time();
+    fecha_diff = MIRTC.format_date();
+    hora_diff = MIRTC.format_time();
   }
 
   // Alerta de Humedad
@@ -75,11 +75,4 @@ void sensores::evaluar_alertas(void) {
     hora_lluvia = MIRTC.format_time();
   }
 
-  // Alerta de Noche
-  if (lux < UMB_LUX_NOCHE && !warning_noche) {
-    warning_noche = true;
-    MIRTC.get_time();
-    fecha_noche = MIRTC.format_date();
-    hora_noche = MIRTC.format_time();
-  }
 }

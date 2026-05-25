@@ -6,7 +6,6 @@
 #define PIN_BTN 14  // Botón de emergencia
 
 // CONSTANTES LÓGICAS
-#define UMB_TEMP_MARGIN_ABRIR 3.0  // Histéresis de temperatura (°C)
 #define UMB_TEMP_SOFOCO 25.0       // Temperatura para encender ventilador si está cerrado
 
 // TIEMPOS DE TAREAS (ms)
@@ -29,9 +28,6 @@ public:
            t_ant_mqtt = 0,
            t_ant_rtc = 0,
            t_actual = 0;
-
-  // Variables de Estado Global del Sistema
-  bool emergencia = false;
 
   // Variables auxiliares para el botón
   bool estado_btn_anterior = HIGH;

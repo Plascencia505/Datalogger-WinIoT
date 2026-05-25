@@ -16,8 +16,8 @@
 
 // UMBRALES ESCALABLES
 #define UMB_HUMEDAD_ALTA 70.0
-#define UMB_TEMP_ALTA_INT 28.0
-#define UMB_LUX_NOCHE 400
+#define UMB_TEMP_MARGIN_ABRIR 3.0 
+#define UMB_LUX_NOCHE 700
 #define UMB_LLUVIA_CRITICA 70
 
 class sensores {
@@ -30,9 +30,9 @@ private:
 public:
   sensores();
 
-  bool warning_temp = false;
-  String hora_temp = "";
-  String fecha_temp = "";
+  bool warning_diff = false;
+  String hora_diff = "";
+  String fecha_diff = "";
 
   bool warning_hum = false;
   String hora_hum = "";
@@ -42,9 +42,9 @@ public:
   String hora_lluvia = "";
   String fecha_lluvia = "";
 
-  bool warning_noche = false;
-  String hora_noche = "";
-  String fecha_noche = "";
+  bool warning_emergencia = false;
+  String hora_emergencia = "";
+  String fecha_emergencia = "";
 
   float temp_int = 0.0;
   float hum_int = 0.0;
