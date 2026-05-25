@@ -32,32 +32,36 @@ void millis_tasks::tarea_sensores(void) {
   }
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~ 2.- LÓGICA Y JERARQUÍA (EL CEREBRO) ~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*~~~~~~~~~~~~~~~~~~~~~~~~ 2.- LÓGICA Y JERARQUÍA ~~~~~~~~~~~~~~~~~~~~~~~~ */
 void millis_tasks::tarea_logica(void) {
   if ((t_actual - t_ant_logica) >= TIEMPO_LOGICA) {
     
-    // Obtención de condiciones actuales
+    // Obtener las condiciones actuales
     bool is_raining = SEN.warning_lluvia;
-    bool umbral_temp = (SEN.temp_int > UMB_TEMP_ALTA_INT);
     bool umbral_hum = (SEN.hum_int > UMB_HUMEDAD_ALTA);
 
-    // Evaluación cruzada para la noche 
-    // Comparar valor del luxómetro con la hora del RTC
+    // Diferencial térmico para la ventana
+    bool clima_favorable = (SEN.temp_ext <= (SEN.temp_int - UMB_TEMP_MARGIN_ABRIR)); // Afuera es al menos 3° más fresco
+    bool clima_similar   = (SEN.temp_ext >= (SEN.temp_int - 1.0));                   // Temperaturas en rango similar o más calor afuera
+
+    // Seguro de temperatura estática para el ventilador a puerta cerrada
+    bool sofoco_interior = (SEN.temp_int > UMB_TEMP_SOFOCO);
+
+    // Evaluación cruzada para la noche
     bool es_noche = SEN.warning_noche && (MIRTC.hora >= 18 || MIRTC.hora < 6);
     if (SEN.lux > 450 && (MIRTC.hora >= 6 && MIRTC.hora < 18)) es_noche = false;
 
+    // árbol lógico de control
     if (!emergencia) {
       if (!is_raining) {
         if (!es_noche) {
           
-          // Apagar ventilador si la ventana está abierta
-          if (umbral_temp) {
+          if (clima_favorable) {
             if (!ACT.ventana_abierta) ACT.abrir_ventana();
             if (ACT.ventilador_encendido) ACT.control_ventilador(false);
-          } else {
+          } else if (clima_similar) {
             if (ACT.ventana_abierta) ACT.cerrar_ventana();
             
-            // Encender ventilador si la ventana está cerrada
             if (umbral_hum) {
               if (!ACT.ventilador_encendido) ACT.control_ventilador(true, 255);
             } else {
@@ -68,8 +72,8 @@ void millis_tasks::tarea_logica(void) {
         } else {
           // Es de noche
           if (ACT.ventana_abierta) ACT.cerrar_ventana();
-          // Encender ventilador si la ventana está cerrada
-          if (umbral_temp || umbral_hum) {
+
+          if (sofoco_interior || umbral_hum) {
             if (!ACT.ventilador_encendido) ACT.control_ventilador(true, 255);
           } else {
             if (ACT.ventilador_encendido) ACT.control_ventilador(false);
@@ -80,8 +84,7 @@ void millis_tasks::tarea_logica(void) {
         // Está lloviendo
         if (ACT.ventana_abierta) ACT.cerrar_ventana();
         
-        // Encender ventilador si la ventana está cerrada
-        if (umbral_temp || umbral_hum) {
+        if (sofoco_interior || umbral_hum) {
           if (!ACT.ventilador_encendido) ACT.control_ventilador(true, 255);
         } else {
           if (ACT.ventilador_encendido) ACT.control_ventilador(false);
@@ -92,7 +95,7 @@ void millis_tasks::tarea_logica(void) {
       // Estado de Emergencia
       if (!ACT.ventana_abierta) ACT.abrir_ventana();
       
-      // Apagar el ventilador
+      // Apagar el ventilador por seguridad
       if (ACT.ventilador_encendido) ACT.control_ventilador(false); 
     }
 
