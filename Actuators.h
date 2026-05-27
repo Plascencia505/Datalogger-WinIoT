@@ -8,7 +8,7 @@
 #include <ESP32Servo.h>
 
 // PINES
-#define PIN_SERVO_DER 14
+#define PIN_SERVO_DER 13
 #define PIN_SERVO_IZQ 25
 
 // Puente H TB6612FNG para el motor DC
@@ -45,6 +45,8 @@ public:
   void abrir_ventana(void);
   void cerrar_ventana(void);
   void relajar_servos(void);
+
+  //void procesar_movimiento(void);
 
   // Control de Ventilador
   void control_ventilador(bool encender, int velocidad_pwm = 255);

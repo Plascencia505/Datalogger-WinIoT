@@ -22,6 +22,8 @@ void millis_tasks::inicializar_tareas(void) {
 
 void millis_tasks::actualizar_tareas(void) {
   t_actual = millis();
+
+  //ACT.procesar_movimiento();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~ 1.- LECTURA DE SENSORES ~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -38,17 +40,17 @@ void millis_tasks::tarea_logica(void) {
     
     // Obtener las condiciones actuales
     bool is_raining = SEN.warning_lluvia;
-    bool umbral_hum = (SEN.hum_int > UMB_HUMEDAD_ALTA);
+    bool umbral_hum = (SEN.hum_int >= UMB_HUMEDAD_ALTA);
 
     // Diferencial térmico para la ventana
-    bool clima_favorable = (SEN.temp_ext <= (SEN.temp_int - UMB_TEMP_MARGIN_ABRIR)); // Afuera es al menos 3° más fresco
+    bool clima_favorable = (SEN.temp_ext <= (SEN.temp_int - UMB_TEMP_MARGIN_ABRIR)); // Afuera es más fresco
     bool clima_similar   = (SEN.temp_ext >= (SEN.temp_int - 1.0));                   // Temperaturas en rango similar o más calor afuera
 
     // Seguro de temperatura estática para el ventilador a puerta cerrada
     bool sofoco_interior = (SEN.temp_int > UMB_TEMP_SOFOCO);
 
     // Evaluación cruzada para la noche
-    bool es_noche = SEN.warning_noche && (MIRTC.hora >= 18 || MIRTC.hora < 6);
+    bool es_noche = SEN.warning_noche && (MIRTC.hora >= 20 || MIRTC.hora < 7);
     if (SEN.lux > 450 && (MIRTC.hora >= 6 && MIRTC.hora < 18)) es_noche = false;
 
     // árbol lógico de control

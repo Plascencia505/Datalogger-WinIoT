@@ -1,7 +1,9 @@
 #include "JSONS.h"
 #include "Sensors.h"  // Necesario para acceder a las fechas de las alertas
+#include "Actuators.h"
 
 extern sensores SEN;  // Referencia al objeto global
+extern actuadores ACT;
 JSON_Factory JSON_fac;
 
 String JSON_Factory::make_json(
@@ -27,6 +29,8 @@ String JSON_Factory::make_json(
 
   // Agregar lectura cruda de la lluvia
   doc["lluvia_pct"] = SEN.porcentaje_lluvia;
+  // Agregar posición de la ventana
+  doc["posicion_ventana"] = ACT.ventana_abierta ? "Abierta" : "Cerrada";
 
   // Si existe alguna advertencia, crear el objeto anidado
   if (warn_lluvia || warn_diff || warn_hum || warn_emergencia) {
@@ -41,7 +45,7 @@ String JSON_Factory::make_json(
 
     // Anidar advertencia de la temperatura
     if (warn_diff) {
-      JsonObject adv_diff = advertencia["clima_favorable"].to<JsonObject>();
+      JsonObject adv_diff = advertencia["abierta_temperatura"].to<JsonObject>();
       adv_diff["fecha"] = SEN.fecha_diff; 
       adv_diff["hora"] = SEN.hora_diff;   
     }

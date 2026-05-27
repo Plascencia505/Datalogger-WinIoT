@@ -75,4 +75,11 @@ void sensores::evaluar_alertas(void) {
     hora_lluvia = MIRTC.format_time();
   }
 
+  // Alerta de Noche
+  if (lux < UMB_LUX_NOCHE && !warning_noche) {
+    warning_noche = true;
+    MIRTC.get_time();
+    fecha_noche = MIRTC.format_date();
+    hora_noche = MIRTC.format_time();
+  }
 }

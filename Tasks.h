@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define PIN_BTN 14  // Botón de emergencia
+#define PIN_BTN 15  // Botón de emergencia
 
 // CONSTANTES LÓGICAS
 #define UMB_TEMP_SOFOCO 25.0       // Temperatura para encender ventilador si está cerrado

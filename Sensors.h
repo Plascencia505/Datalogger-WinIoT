@@ -15,8 +15,8 @@
 #define PIN_LLUVIA 33
 
 // UMBRALES ESCALABLES
-#define UMB_HUMEDAD_ALTA 70.0
-#define UMB_TEMP_MARGIN_ABRIR 3.0 
+#define UMB_HUMEDAD_ALTA 65.0
+#define UMB_TEMP_MARGIN_ABRIR 2.0 
 #define UMB_LUX_NOCHE 700
 #define UMB_LLUVIA_CRITICA 70
 
@@ -45,6 +45,10 @@ public:
   bool warning_emergencia = false;
   String hora_emergencia = "";
   String fecha_emergencia = "";
+
+  bool warning_noche = false;
+  String hora_noche = "";
+  String fecha_noche = "";
 
   float temp_int = 0.0;
   float hum_int = 0.0;

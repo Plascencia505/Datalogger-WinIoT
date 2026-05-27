@@ -19,6 +19,13 @@ void actuadores::config(void) {
   servoDer.setPeriodHertz(50);
   servoIzq.setPeriodHertz(50);
 
+  // Canales PWM para la ventana
+  servoDer.attach(PIN_SERVO_DER, 500, 2400);
+  servoIzq.attach(PIN_SERVO_IZQ, 500, 2400);
+
+  // Evitar que suenen al inicio
+  relajar_servos();
+
   // Inicialización de Pantalla OLED
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("Fallo al inicializar la pantalla OLED"));
@@ -37,8 +44,9 @@ void actuadores::config(void) {
 void actuadores::abrir_ventana(void) {
   if (!ventana_abierta) {
     Serial.println(F(">> MOTOR: Abriendo..."));
-    servoDer.attach(PIN_SERVO_DER, 500, 2400);
-    servoIzq.attach(PIN_SERVO_IZQ, 500, 2400);
+
+    //servoDer.attach(PIN_SERVO_DER, 500, 2400);
+    //servoIzq.attach(PIN_SERVO_IZQ, 500, 2400);
 
     // Escribir los ángulos en modo espejo
     servoDer.write(ANGULO_ABIERTO_DER);
@@ -55,8 +63,9 @@ void actuadores::abrir_ventana(void) {
 void actuadores::cerrar_ventana(void) {
   if (ventana_abierta) {
     Serial.println(F(">> MOTOR: Cerrando..."));
-    servoDer.attach(PIN_SERVO_DER, 500, 2400);
-    servoIzq.attach(PIN_SERVO_IZQ, 500, 2400);
+
+    //servoDer.attach(PIN_SERVO_DER, 500, 2400);
+    //servoIzq.attach(PIN_SERVO_IZQ, 500, 2400);
 
     // Escribir los ángulos de cierre en modo espejo
     servoDer.write(ANGULO_CERRADO_DER);
@@ -71,8 +80,10 @@ void actuadores::cerrar_ventana(void) {
 
 void actuadores::relajar_servos(void) {
   Serial.println(F(">> MOTOR: Relax (OFF)"));
-  servoDer.detach();
-  servoIzq.detach();
+  //servoDer.detach();
+  //servoIzq.detach();
+  servoDer.writeMicroseconds(0);
+  servoIzq.writeMicroseconds(0);
 }
 
 void actuadores::control_ventilador(bool encender, int velocidad_pwm) {
@@ -134,7 +145,7 @@ void actuadores::mostrar_datos(
   // Indicador del ventilador
   if (fan_on) {
     display.setCursor(100, 51);
-    display.print(F("[FAN]"));
+    display.print(F("FAN"));
   }
 
   display.display();
